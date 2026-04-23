@@ -9,6 +9,7 @@ from src.apa7_auditor import run_apa7_audit
 from src.doi_validator import validate_reference_entry
 from src.intake_router import normalize_intake, validate_intake
 from src.draft_generator import generate_manuscript
+from src.section_parser import split_sections
 
 
 def _build_scoring_input(apa_audit: dict[str, Any], references_checked: list[dict[str, Any]], text: str) -> dict[str, Any]:
@@ -62,7 +63,19 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
     scoring_input = _build_scoring_input(apa_audit, references_checked, sample_text)
     score = score_document(scoring_input)
 
-    manuscript_draft = generate_manuscript(intake_output, sample_text, references_checked)
+    parsed_sections = split_sections(sample_text)
+    parsed_text = "\n\n".join(
+        filter(
+            None,
+            [
+                "Abstract\n" + parsed_sections["abstract"] if parsed_sections["abstract"] else "",
+                "Introduction\n" + parsed_sections["introduction"] if parsed_sections["introduction"] else "",
+                "Discussion\n" + parsed_sections["discussion"] if parsed_sections["discussion"] else "",
+                "References\n" + parsed_sections["references"] if parsed_sections["references"] else "",
+            ],
+        )
+    )
+    manuscript_draft = generate_manuscript(intake_output, parsed_text, references_checked)
 
     return {
         "intake": intake_output,

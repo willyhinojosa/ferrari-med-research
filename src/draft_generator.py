@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.section_parser import split_sections
+
 
 def generate_title_page(intake: dict[str, Any]) -> str:
     """Build a simple academic title page section in markdown."""
@@ -24,12 +26,12 @@ def generate_title_page(intake: dict[str, Any]) -> str:
     )
 
 
-def generate_abstract_section(text: str) -> str:
+def generate_abstract_section(abstract_text: str) -> str:
     """Build the abstract section using available manuscript text."""
 
-    clean_text = (text or "").strip()
-    abstract_text = clean_text if clean_text else "Abstract content not provided."
-    return f"## Abstract\n\n{abstract_text}"
+    clean_text = (abstract_text or "").strip()
+    abstract_value = clean_text if clean_text else "Abstract content not provided."
+    return f"## Abstract\n\n{abstract_value}"
 
 
 def generate_keywords_section(intake: dict[str, Any]) -> str:
@@ -49,18 +51,17 @@ def generate_keywords_section(intake: dict[str, Any]) -> str:
     return f"## Keywords\n\n{', '.join(keywords)}"
 
 
-def generate_main_body(text: str) -> str:
+def generate_main_body(introduction_text: str, discussion_text: str) -> str:
     """Build required Introduction and Discussion sections."""
 
-    clean_text = (text or "").strip()
-    if not clean_text:
-        clean_text = "Content pending from validated manuscript text."
+    introduction = (introduction_text or "").strip() or "Content pending from validated manuscript text."
+    discussion = (discussion_text or "").strip() or "Content pending from validated manuscript text."
 
     return (
         "## Introduction\n\n"
-        f"{clean_text}\n\n"
+        f"{introduction}\n\n"
         "## Discussion\n\n"
-        f"{clean_text}"
+        f"{discussion}"
     )
 
 
@@ -88,11 +89,12 @@ def generate_references_section(references_checked: list[dict[str, Any]]) -> str
 def generate_manuscript(intake: dict[str, Any], text: str, references_checked: list[dict[str, Any]]) -> str:
     """Generate the full markdown manuscript draft in required section order."""
 
+    parsed = split_sections(text)
     sections = [
         generate_title_page(intake),
-        generate_abstract_section(text),
+        generate_abstract_section(parsed["abstract"]),
         generate_keywords_section(intake),
-        generate_main_body(text),
+        generate_main_body(parsed["introduction"], parsed["discussion"]),
         generate_references_section(references_checked),
     ]
     return "\n\n".join(sections) + "\n"
