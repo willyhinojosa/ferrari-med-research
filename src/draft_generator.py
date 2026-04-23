@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.section_parser import split_sections
+from src.evidence_to_text_generator import generate_abstract, generate_discussion, generate_introduction
 
 
 def generate_title_page(intake: dict[str, Any]) -> str:
@@ -26,11 +26,10 @@ def generate_title_page(intake: dict[str, Any]) -> str:
     )
 
 
-def generate_abstract_section(abstract_text: str) -> str:
-    """Build the abstract section using available manuscript text."""
+def generate_abstract_section(research_packet: dict[str, Any] | None = None) -> str:
+    """Build abstract content from research-packet evidence."""
 
-    clean_text = (abstract_text or "").strip()
-    abstract_value = clean_text if clean_text else "Abstract content not provided."
+    abstract_value = generate_abstract(research_packet or {})
     return f"## Abstract\n\n{abstract_value}"
 
 
@@ -51,17 +50,16 @@ def generate_keywords_section(intake: dict[str, Any]) -> str:
     return f"## Keywords\n\n{', '.join(keywords)}"
 
 
-def generate_main_body(introduction_text: str, discussion_text: str) -> str:
-    """Build required Introduction and Discussion sections."""
+def generate_main_body(research_packet: dict[str, Any] | None = None) -> str:
+    """Build required Introduction and Discussion sections from evidence."""
 
-    introduction = (introduction_text or "").strip() or "Content pending from validated manuscript text."
-    discussion = (discussion_text or "").strip() or "Content pending from validated manuscript text."
+    packet = research_packet or {}
 
     return (
         "## Introduction\n\n"
-        f"{introduction}\n\n"
+        f"{generate_introduction(packet)}\n\n"
         "## Discussion\n\n"
-        f"{discussion}"
+        f"{generate_discussion(packet)}"
     )
 
 
@@ -91,15 +89,17 @@ def generate_manuscript(
     text: str,
     references_checked: list[dict[str, Any]],
     parsed_sections: dict[str, str] | None = None,
+    research_packet: dict[str, Any] | None = None,
 ) -> str:
     """Generate the full markdown manuscript draft in required section order."""
 
-    sections_data = parsed_sections if parsed_sections is not None else split_sections(text)
+    del text, parsed_sections  # manuscript sections are generated from validated evidence packet.
+
     sections = [
         generate_title_page(intake),
-        generate_abstract_section(sections_data.get("abstract", "")),
+        generate_abstract_section(research_packet),
         generate_keywords_section(intake),
-        generate_main_body(sections_data.get("introduction", ""), sections_data.get("discussion", "")),
+        generate_main_body(research_packet),
         generate_references_section(references_checked),
     ]
     return "\n\n".join(sections) + "\n"
