@@ -9,7 +9,6 @@ from src.apa7_auditor import run_apa7_audit
 from src.doi_validator import validate_reference_entry
 from src.intake_router import normalize_intake, validate_intake
 from src.draft_generator import generate_manuscript
-from src.section_parser import split_sections
 from src.research_packet_builder import build_research_packet
 
 
@@ -64,9 +63,13 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
     scoring_input = _build_scoring_input(apa_audit, references_checked, sample_text)
     score = score_document(scoring_input)
 
-    parsed_sections = split_sections(sample_text)
-    manuscript_draft = generate_manuscript(intake_output, sample_text, references_checked, parsed_sections=parsed_sections)
     research_packet = build_research_packet(intake_output, references_checked)
+    manuscript_draft = generate_manuscript(
+        intake_output,
+        sample_text,
+        references_checked,
+        research_packet=research_packet,
+    )
 
     return {
         "intake": intake_output,
