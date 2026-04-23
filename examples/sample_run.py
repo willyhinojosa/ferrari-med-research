@@ -47,3 +47,5 @@ if __name__ == "__main__":
 
     result = run_pipeline(intake_payload, manuscript_text, reference_entries)
     print(json.dumps(result, indent=2, ensure_ascii=False))
+    print("\n--- Manuscript Draft ---\n")
+    print(result["manuscript_draft"])

@@ -8,6 +8,7 @@ from src.academic_score_engine import score_document
 from src.apa7_auditor import run_apa7_audit
 from src.doi_validator import validate_reference_entry
 from src.intake_router import normalize_intake, validate_intake
+from src.draft_generator import generate_manuscript
 
 
 def _build_scoring_input(apa_audit: dict[str, Any], references_checked: list[dict[str, Any]], text: str) -> dict[str, Any]:
@@ -61,6 +62,8 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
     scoring_input = _build_scoring_input(apa_audit, references_checked, sample_text)
     score = score_document(scoring_input)
 
+    manuscript_draft = generate_manuscript(intake_output, sample_text, references_checked)
+
     return {
         "intake": intake_output,
         "intake_valid": intake_valid,
@@ -69,5 +72,6 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
         "invalid_reference_count": invalid_reference_count,
         "apa_audit": apa_audit,
         "score": score,
+        "manuscript_draft": manuscript_draft,
         "pipeline_status": pipeline_status,
     }

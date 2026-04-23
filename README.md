@@ -5,12 +5,13 @@ This v2 hardening pass keeps the project lean while improving validation, error 
 
 ## MVP Scope (Hardened v2)
 
-This MVP focuses on four core capabilities:
+This MVP focuses on five core capabilities:
 
 1. intake normalization and validation,
 2. DOI normalization and validation checks,
 3. APA 7 heuristic auditing,
-4. deterministic academic scoring.
+4. deterministic academic scoring,
+5. manuscript draft generation in markdown.
 
 No external APIs, web requests, or databases are used.
 
@@ -56,8 +57,9 @@ The repository now includes a minimal orchestrator that connects all core module
 2. `doi_validator`
 3. `apa7_auditor`
 4. `academic_score_engine`
+5. `draft_generator`
 
-The entrypoint is `run_pipeline(intake_data, sample_text, references)` in `src/pipeline_runner.py`, which returns a compact structured dictionary with validation status, checks, audit output, score, and final pipeline status.
+The entrypoint is `run_pipeline(intake_data, sample_text, references)` in `src/pipeline_runner.py`, which returns a compact structured dictionary with validation status, checks, audit output, score, manuscript draft (`manuscript_draft`), and final pipeline status.
 
 ### Run the example
 
@@ -66,6 +68,8 @@ From the repository root:
 ```bash
 python examples/sample_run.py
 ```
+
+The sample runner prints the JSON pipeline summary first and then a markdown manuscript draft assembled into these ordered sections: Title Page, Abstract, Keywords, Introduction, Discussion, and References.
 
 ## Project Structure
 
@@ -80,11 +84,13 @@ ferrari-med-research/
 │   ├── doi_validator.py
 │   ├── apa7_auditor.py
 │   ├── pipeline_runner.py
+│   ├── draft_generator.py
 │   └── academic_score_engine.py
 └── tests/
     ├── test_intake_router.py
     ├── test_doi_validator.py
     ├── test_apa7_auditor.py
     ├── test_score_engine.py
+    ├── test_draft_generator.py
     └── tests_pipeline_runner.py
 ```
