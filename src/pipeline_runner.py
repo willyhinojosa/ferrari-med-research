@@ -69,6 +69,7 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
         sample_text,
         references_checked,
         research_packet=research_packet,
+        citation_references=references_checked,
     )
 
     return {
