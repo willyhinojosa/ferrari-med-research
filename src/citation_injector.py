@@ -70,11 +70,19 @@ def _extract_label(title: str) -> str:
         return "Study"
 
     for word in words:
-        normalized = word.lower()
-        if normalized not in _STOPWORDS and len(normalized) > 2:
-            return normalized.capitalize()
+        normalized = word.strip("'").lower()
+        if normalized in _STOPWORDS:
+            continue
+        if len(normalized) < 3:
+            continue
+        if not re.search(r"[a-z]", normalized):
+            continue
+        if not re.fullmatch(r"[a-z0-9']+", normalized):
+            continue
+        return normalized.capitalize()
 
-    return words[0].capitalize() if words else "Study"
+    fallback = re.sub(r"[^A-Za-z]", "", words[0])
+    return fallback.capitalize() if len(fallback) >= 3 else "Study"
 
 
 def _build_citations(references: list[dict[str, Any]]) -> list[str]:
@@ -100,6 +108,9 @@ def _insert_citation_in_section(text: str, section_name: str, citation: str) -> 
     def _replace(match: re.Match[str]) -> str:
         header = match.group(1)
         body = match.group(2)
+        if citation in body:
+            return match.group(0)
+
         sentences = re.split(r"(?<=[.!?])\s+", body.strip())
         if not sentences:
             return match.group(0)
@@ -137,7 +148,15 @@ def inject_citations(text: str, references: list[dict]) -> str:
     if not isinstance(references, list) or not references:
         return text
 
-    citations = _build_citations([ref for ref in references if isinstance(ref, dict)])
+    valid_references = [
+        ref
+        for ref in references
+        if isinstance(ref, dict) and ref.get("is_valid_doi") is True
+    ]
+    if not valid_references:
+        return text
+
+    citations = _build_citations(valid_references)
     if not citations:
         return text
 
