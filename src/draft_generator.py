@@ -86,15 +86,20 @@ def generate_references_section(references_checked: list[dict[str, Any]]) -> str
     return "## References\n\n" + "\n".join(lines)
 
 
-def generate_manuscript(intake: dict[str, Any], text: str, references_checked: list[dict[str, Any]]) -> str:
+def generate_manuscript(
+    intake: dict[str, Any],
+    text: str,
+    references_checked: list[dict[str, Any]],
+    parsed_sections: dict[str, str] | None = None,
+) -> str:
     """Generate the full markdown manuscript draft in required section order."""
 
-    parsed = split_sections(text)
+    sections_data = parsed_sections if parsed_sections is not None else split_sections(text)
     sections = [
         generate_title_page(intake),
-        generate_abstract_section(parsed["abstract"]),
+        generate_abstract_section(sections_data.get("abstract", "")),
         generate_keywords_section(intake),
-        generate_main_body(parsed["introduction"], parsed["discussion"]),
+        generate_main_body(sections_data.get("introduction", ""), sections_data.get("discussion", "")),
         generate_references_section(references_checked),
     ]
     return "\n\n".join(sections) + "\n"

@@ -64,18 +64,7 @@ def run_pipeline(intake_data: dict, sample_text: str, references: list[dict]) ->
     score = score_document(scoring_input)
 
     parsed_sections = split_sections(sample_text)
-    parsed_text = "\n\n".join(
-        filter(
-            None,
-            [
-                "Abstract\n" + parsed_sections["abstract"] if parsed_sections["abstract"] else "",
-                "Introduction\n" + parsed_sections["introduction"] if parsed_sections["introduction"] else "",
-                "Discussion\n" + parsed_sections["discussion"] if parsed_sections["discussion"] else "",
-                "References\n" + parsed_sections["references"] if parsed_sections["references"] else "",
-            ],
-        )
-    )
-    manuscript_draft = generate_manuscript(intake_output, parsed_text, references_checked)
+    manuscript_draft = generate_manuscript(intake_output, sample_text, references_checked, parsed_sections=parsed_sections)
 
     return {
         "intake": intake_output,

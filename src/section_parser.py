@@ -5,39 +5,45 @@ from __future__ import annotations
 import re
 
 _SECTION_KEYS = ("abstract", "introduction", "discussion", "references")
-_HEADING_PATTERN = re.compile(r"(?im)^\s*(abstract|introduction|discussion|references)\s*[:\-]?\s*$")
+_SECTION_SET = set(_SECTION_KEYS)
+_SECTION_LABEL_PATTERN = re.compile(r"^\s*(abstract|introduction|discussion|references)\s*[:\-]?\s*$", re.IGNORECASE)
 
 
-def _clean_content(section_name: str, content: str) -> str:
+def _clean_content(section_name: str, lines: list[str]) -> str:
     """Normalize whitespace and remove repeated section labels from content."""
 
-    text = (content or "").strip()
-    if not text:
-        return ""
+    cleaned_lines: list[str] = []
+    own_label = re.compile(rf"^\s*{re.escape(section_name)}\s*[:\-]?\s*$", re.IGNORECASE)
 
-    label_pattern = re.compile(rf"(?im)^\s*{re.escape(section_name)}\s*[:\-]?\s*$")
-    lines = [line for line in text.splitlines() if not label_pattern.match(line)]
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line:
+            # Preserve paragraph boundaries while trimming leading/trailing empties later.
+            cleaned_lines.append("")
+            continue
+        if own_label.match(line):
+            continue
+        cleaned_lines.append(line)
 
-    return "\n".join(lines).strip()
+    text = "\n".join(cleaned_lines).strip()
+    # Collapse excessive blank lines to avoid noisy output.
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text
 
 
 def split_sections(text: str) -> dict[str, str]:
     """Split manuscript text into abstract/introduction/discussion/references sections."""
 
-    source = text or ""
-    sections: dict[str, str] = {key: "" for key in _SECTION_KEYS}
+    sections: dict[str, list[str]] = {key: [] for key in _SECTION_KEYS}
+    current_section: str | None = None
 
-    matches = list(_HEADING_PATTERN.finditer(source))
-    if not matches:
-        return sections
+    for line in (text or "").splitlines():
+        heading_match = _SECTION_LABEL_PATTERN.match(line)
+        if heading_match:
+            current_section = heading_match.group(1).lower()
+            continue
 
-    for index, match in enumerate(matches):
-        section_name = match.group(1).lower()
-        start = match.end()
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(source)
-        extracted = _clean_content(section_name, source[start:end])
+        if current_section in _SECTION_SET:
+            sections[current_section].append(line)
 
-        if extracted and not sections[section_name]:
-            sections[section_name] = extracted
-
-    return sections
+    return {name: _clean_content(name, content_lines) for name, content_lines in sections.items()}
