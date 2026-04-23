@@ -77,3 +77,26 @@ def test_split_sections_removes_duplicated_markers_inside_content() -> None:
     assert result["introduction"] == "Primary introduction."
     assert result["discussion"] == "Primary discussion."
     assert result["references"] == "Primary refs."
+
+
+def test_split_sections_keeps_boundaries_when_markers_repeat() -> None:
+    text = """
+    ABSTRACT
+    First abstract line.
+
+    abstract
+    Second abstract line.
+    INTRODUCTION
+    Intro line.
+    DISCUSSION
+    Discussion line.
+    REFERENCES
+    Ref line.
+    """
+
+    result = split_sections(text)
+
+    assert result["abstract"] == "First abstract line.\n\nSecond abstract line."
+    assert result["introduction"] == "Intro line."
+    assert result["discussion"] == "Discussion line."
+    assert result["references"] == "Ref line."
