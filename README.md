@@ -48,20 +48,43 @@ No external APIs, web requests, or databases are used.
 - DOI validation focuses on format-level validity and normalization, not DOI resolvability.
 - Scoring is rule-based and intentionally simple; it is not a substitute for expert peer review.
 
+## End-to-end MVP pipeline
+
+The repository now includes a minimal orchestrator that connects all core modules in this order:
+
+1. `intake_router`
+2. `doi_validator`
+3. `apa7_auditor`
+4. `academic_score_engine`
+
+The entrypoint is `run_pipeline(intake_data, sample_text, references)` in `src/pipeline_runner.py`, which returns a compact structured dictionary with validation status, checks, audit output, score, and final pipeline status.
+
+### Run the example
+
+From the repository root:
+
+```bash
+python examples/sample_run.py
+```
+
 ## Project Structure
 
 ```text
 ferrari-med-research/
 ├── README.md
+├── examples/
+│   └── sample_run.py
 ├── requirements.txt
 ├── src/
 │   ├── intake_router.py
 │   ├── doi_validator.py
 │   ├── apa7_auditor.py
+│   ├── pipeline_runner.py
 │   └── academic_score_engine.py
 └── tests/
     ├── test_intake_router.py
     ├── test_doi_validator.py
     ├── test_apa7_auditor.py
-    └── test_score_engine.py
+    ├── test_score_engine.py
+    └── tests_pipeline_runner.py
 ```
