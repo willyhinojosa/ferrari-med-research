@@ -35,6 +35,8 @@ def test_run_pipeline_valid_intake_flow() -> None:
     assert result["intake_errors"] == []
     assert result["pipeline_status"] == "ok"
     assert "total_score" in result["score"]
+    assert "manuscript_draft" in result
+    assert "## Title Page" in result["manuscript_draft"]
 
 
 def test_run_pipeline_invalid_intake_flow() -> None:
