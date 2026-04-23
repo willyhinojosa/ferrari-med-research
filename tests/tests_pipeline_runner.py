@@ -70,3 +70,17 @@ def test_run_pipeline_status_values_are_expected() -> None:
 
     assert ok_result["pipeline_status"] == "ok"
     assert bad_result["pipeline_status"] == "invalid_intake"
+
+
+def test_run_pipeline_manuscript_contains_inline_citations() -> None:
+    refs = [
+        {"title": "Therapy response profile", "year": 2022, "doi": "10.1000/xyz123"},
+        {"title": "Outcome variance assessment", "year": 2021, "doi": "10.1000/abc456"},
+    ]
+
+    result = run_pipeline(_valid_intake(), _sample_text(), refs)
+
+    manuscript = result["manuscript_draft"]
+    assert "(Therapy, 2022)" in manuscript
+    assert "(Outcome, 2021)" in manuscript
+    assert "## References" in manuscript

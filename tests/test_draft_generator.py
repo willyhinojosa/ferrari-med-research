@@ -84,3 +84,38 @@ def test_final_manuscript_structure() -> None:
     positions = [result.index(section) for section in expected_order]
     assert positions == sorted(positions)
     assert "References require validation before final inclusion." in result
+
+
+def test_generate_manuscript_injects_citations_without_changing_references() -> None:
+    intake = {
+        "title": "Citation Test",
+        "topic": "Kidney Disease",
+        "document_type": "Review",
+        "language": "English",
+        "academic_level": "Graduate",
+    }
+
+    references_checked = [
+        {
+            "original_entry": {"title": "Guideline adherence outcomes", "year": 2021, "doi": "10.1000/one"},
+            "normalized_doi": "10.1000/one",
+            "is_valid_doi": True,
+            "errors": [],
+        },
+        {
+            "original_entry": {"title": "Biomarker progression analysis", "year": 2020, "doi": "10.1000/two"},
+            "normalized_doi": "10.1000/two",
+            "is_valid_doi": True,
+            "errors": [],
+        },
+    ]
+
+    manuscript = generate_manuscript(intake, "", references_checked)
+
+    intro_block = manuscript.split("## Discussion")[0]
+    discussion_block = manuscript.split("## Discussion")[1]
+
+    assert "(Guideline, 2021)" in intro_block
+    assert "(Biomarker, 2020)" in discussion_block
+    assert "- Guideline adherence outcomes. https://doi.org/10.1000/one" in manuscript
+    assert "- Biomarker progression analysis. https://doi.org/10.1000/two" in manuscript

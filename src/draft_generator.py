@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.citation_injector import inject_citations
 from src.evidence_to_text_generator import generate_abstract, generate_discussion, generate_introduction
 
 
@@ -90,16 +91,21 @@ def generate_manuscript(
     references_checked: list[dict[str, Any]],
     parsed_sections: dict[str, str] | None = None,
     research_packet: dict[str, Any] | None = None,
+    citation_references: list[dict[str, Any]] | None = None,
 ) -> str:
     """Generate the full markdown manuscript draft in required section order."""
 
     del text, parsed_sections  # manuscript sections are generated from validated evidence packet.
 
+    main_body = generate_main_body(research_packet)
+    references_for_citations = citation_references if citation_references is not None else references_checked
+    cited_main_body = inject_citations(main_body, references_for_citations)
+
     sections = [
         generate_title_page(intake),
         generate_abstract_section(research_packet),
         generate_keywords_section(intake),
-        generate_main_body(research_packet),
+        cited_main_body,
         generate_references_section(references_checked),
     ]
     return "\n\n".join(sections) + "\n"
