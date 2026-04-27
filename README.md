@@ -103,6 +103,17 @@ The sample query is:
 
 If PubMed is unavailable, the example prints a clear message instead of crashing.
 
+
+## Run Local App
+
+Launch the local Streamlit interface to run the full Ferrari Med Research pipeline without editing code:
+
+```bash
+streamlit run app.py
+```
+
+In the app you can set the topic, document type, academic level, PubMed result count, run the pipeline, preview manuscript sections, and export a DOCX file.
+
 ## Project Structure
 
 ```text
