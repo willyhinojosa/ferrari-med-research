@@ -14,7 +14,7 @@ This MVP focuses on six core capabilities:
 5. deterministic academic scoring,
 6. manuscript draft generation in markdown.
 
-No external APIs, web requests, or databases are used.
+No databases are used. Optional PubMed lookup support is available via NCBI E-utilities.
 
 ## Current capabilities
 
@@ -82,6 +82,26 @@ python examples/export_sample_docx.py
 ```
 
 The script writes the DOCX file to `data/exports/sample_manuscript.docx` and prints the generated file path.
+
+
+## PubMed Integration
+
+Ferrari Med Research includes a lightweight PubMed client (`src/pubmed_client.py`) that uses official NCBI E-utilities endpoints:
+
+- `esearch.fcgi` for PMID discovery by query.
+- `efetch.fcgi` for article metadata retrieval (title, abstract, journal, year, DOI, authors).
+
+Run the sample integration script:
+
+```bash
+python examples/pubmed_sample_run.py
+```
+
+The sample query is:
+
+- `SGLT2 inhibitors heart failure type 2 diabetes`
+
+If PubMed is unavailable, the example prints a clear message instead of crashing.
 
 ## Project Structure
 
