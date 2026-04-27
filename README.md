@@ -73,6 +73,16 @@ python examples/sample_run.py
 
 The sample runner prints the JSON pipeline summary first and then a markdown manuscript draft assembled into these ordered sections: Title Page, Abstract, Keywords, Introduction, Discussion, and References.
 
+## APA DOCX Export
+
+You can export the generated markdown manuscript draft into an APA-style Word document:
+
+```bash
+python examples/export_sample_docx.py
+```
+
+The script writes the DOCX file to `data/exports/sample_manuscript.docx` and prints the generated file path.
+
 ## Project Structure
 
 ```text
